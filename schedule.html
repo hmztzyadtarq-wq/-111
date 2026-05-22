@@ -41,15 +41,14 @@
         .engine-status { font-size: 13px; color: #10b981; font-weight: bold; display: flex; align-items: center; gap: 6px; }
         .pulse-dot { width: 8px; height: 8px; background: #10b981; border-radius: 50%; }
 
-        /* ستايل لوحة هوية المستخدم المطور */
         .user-identity-badge {
             background: linear-gradient(90deg, #1e293b, #0f172a);
             padding: 8px 15px; border-radius: 8px; font-size: 13px; font-weight: bold;
             border: 1px solid var(--border-color); color: var(--accent-pink);
         }
-        .switch-user-btn {
-            background: none; border: none; color: var(--text-muted); 
-            text-decoration: underline; cursor: pointer; margin-right: 8px; font-size: 11px;
+        .logout-btn {
+            background: none; border: none; color: #ef4444; 
+            text-decoration: underline; cursor: pointer; margin-right: 8px; font-size: 11px; font-weight: bold;
         }
 
         .direct-add-box { 
@@ -95,10 +94,7 @@
         .btn-vs-user.tarek-success { background: rgba(236, 72, 153, 0.2); color: var(--accent-pink); border-color: var(--accent-pink); }
         .btn-vs-user.hazem-success { background: rgba(16, 185, 129, 0.2); color: #10b981; border-color: #10b981; }
 
-        .btn-vs-user:disabled {
-            opacity: 0.4;
-            cursor: not-allowed !important;
-        }
+        .btn-vs-user:disabled { opacity: 0.35; cursor: not-allowed !important; }
 
         .del-icon-btn { background: none; border: none; color: #ef4444; cursor: pointer; font-size: 14px; }
         .progress-summary-text { font-size: 12px; font-weight: bold; color: var(--text-muted); margin-top: 10px; display: flex; justify-content: space-between; }
@@ -107,13 +103,13 @@
 </head>
 <body>
     <header>
-        <h1>🏆 ساحة معسكر العشرة الأوائل (تأمين الهوية المطور 🔐)</h1>
+        <h1>🏆 ساحة معسكر العشرة الأوائل (لوحة التحكم الشاملة)</h1>
         <div style="display: flex; align-items: center; gap: 15px;">
             <div class="user-identity-badge">
-                👤 الحساب الحالي: <span id="currentUserLabel" style="color:#10b981;">جاري التحقق...</span>
-                <button class="switch-user-btn" onclick="forcePromptUser()">تبديل الحساب</button>
+                👤 الحساب الحالي: <span id="currentUserLabel" style="color:#10b981;">جاري الفحص...</span>
+                <button class="logout-btn" onclick="handleLogout()">خروج 🚪</button>
             </div>
-            <div class="engine-status"><span class="pulse-dot"></span> محمي برقم الهاتف</div>
+            <div class="engine-status"><span class="pulse-dot"></span> متصل ومحدث تلقائياً</div>
             <button onclick="toggleTheme()" class="theme-toggle-btn" id="themeBtn">المود الفاتح ☀️</button>
         </div>
     </header>
@@ -154,57 +150,34 @@
         let localTasksArray = [];
         let activeUser = "";
 
-        // قاعدة بيانات الحسابات السرية بالبيانات الحقيقية التي أرسلتها
-        const USER_CREDENTIALS = {
-            "01140090339": { name: "طارق", pass: "1714827128" },
-            "01098078492": { name: "حازم", pass: "eesdca32" }
-        };
-
         window.onload = function() {
             applySavedTheme();
-            checkUserIdentity();
-            loadData();
+            checkProtection();
+            loadAndRenderData();
+            
+            // 🔄 التحديث التلقائي الفوري كل 1 ثانية (1000 مللي ثانية) لقراءة تعديلات حازم أو طارق فوراً
+            setInterval(loadAndRenderData, 1000);
         };
 
-        // نظام التحقق الصارم والمؤمن برقم الهاتف وبكلمة السر
-        function checkUserIdentity() {
+        // دالة حماية الصفحة: لو مفيش دخول مسبق من index يرجعه فوراً
+        function checkProtection() {
             let savedUser = sessionStorage.getItem('active_camp_user');
-            
-            while (!savedUser) {
-                let phone = prompt("أهلاً بطل المعسكر! من فضلك أدخل رقم الهاتف الخاص بك:");
-                
-                // التأكد من أن رقم الهاتف مسجل
-                if (USER_CREDENTIALS[phone]) {
-                    let password = prompt(`مرحباً ${USER_CREDENTIALS[phone].name}، من فضلك أدخل كلمة المرور الخاصة بك:`);
-                    
-                    // التحقق من صحة كلمة المرور
-                    if (password === USER_CREDENTIALS[phone].pass) {
-                        savedUser = USER_CREDENTIALS[phone].name;
-                        sessionStorage.setItem('active_camp_user', savedUser);
-                    } else {
-                        alert("❌ كلمة المرور خاطئة! حاول مجدداً.");
-                    }
-                } else {
-                    alert("❌ رقم الهاتف هذا غير مسجل في النظام! تأكد من كتابته بشكل صحيح.");
-                }
-            }
-            activeUser = savedUser;
-            document.getElementById('currentUserLabel').innerText = activeUser;
-        }
-
-        function forcePromptUser() {
-            sessionStorage.removeItem('active_camp_user');
-            checkUserIdentity();
-            renderGridStructure();
-        }
-
-        function loadData() {
-            const saved = localStorage.getItem('local_camp_battle_tasks');
-            if (saved) {
-                localTasksArray = JSON.parse(saved);
+            if (!savedUser) {
+                window.location.href = "index.html";
             } else {
-                localTasksArray = [];
+                activeUser = savedUser;
+                document.getElementById('currentUserLabel').innerText = activeUser;
             }
+        }
+
+        function handleLogout() {
+            sessionStorage.removeItem('active_camp_user');
+            window.location.href = "index.html";
+        }
+
+        function loadAndRenderData() {
+            const saved = localStorage.getItem('local_camp_battle_tasks');
+            localTasksArray = saved ? JSON.parse(saved) : [];
             renderGridStructure();
         }
 
@@ -228,13 +201,15 @@
         function renderGridStructure() {
             const container = document.getElementById('gridDaysContainer');
             if (!container) return;
+            
+            // نحتفظ بمكان السكرول الحالي حتى لا يحدث اهتزاز أثناء التحديث التلقائي كل ثانية
+            const scrollTop = window.scrollY;
             container.innerHTML = '';
 
             const currentActiveDayNum = getCalculatedCurrentDay();
 
             for (let dayNum = 1; dayNum <= 10; dayNum++) {
                 const dayTasks = localTasksArray.filter(t => t.day === dayNum);
-                
                 const total = dayTasks.length;
                 const tDone = dayTasks.filter(t => t.meDone).length;
                 const hDone = dayTasks.filter(t => t.hazemDone).length;
@@ -255,6 +230,7 @@
                         const hBtnClass = task.hazemDone ? "btn-vs-user hazem-success" : "btn-vs-user";
                         const hBtnText = task.hazemDone ? "حازم: ✅ تم" : "حازم: ⏳ شغال";
 
+                        // الخصوصية التامة: الأزرار لا تعمل إلا للمالك الفعلي للجلسة
                         const tarekDisabled = activeUser !== 'طارق' ? 'disabled' : '';
                         const hazemDisabled = activeUser !== 'حازم' ? 'disabled' : '';
 
