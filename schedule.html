@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -5,7 +7,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ساحة مراجعة معسكر العشرة الأوائل</title>
     <style>
-        /* المود المتغير الفخم (بين الأسود والبنك الانسيابي) */
         :root {
             --bg-main: #020617;
             --card-bg: #0f172a;
@@ -40,7 +41,8 @@
         h1 { margin: 0; font-size: 20px; }
 
         .engine-status { font-size: 13px; color: #10b981; font-weight: bold; display: flex; align-items: center; gap: 6px; }
-        .pulse-dot { width: 8px; height: 8px; background: #10b981; border-radius: 50%; }
+        .pulse-dot { width: 8px; height: 8px; background: #10b981; border-radius: 50%; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
 
         .direct-add-box { 
             background: var(--card-bg); 
@@ -82,25 +84,28 @@
         .battle-buttons-zone { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         .btn-vs-user { padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-muted); font-size: 12px; font-weight: bold; cursor: pointer; text-align: center; }
         
-        .btn-vs-user.tarek-success { background: rgba(236, 72, 153, 0.2); color: var(--accent-pink); border-color: var(--accent-pink); }
-        .btn-vs-user.hazem-success { background: rgba(16, 185, 129, 0.2); color: #10b981; border-color: #10b981; }
+        .btn-vs-user.tarek-success { background: rgba(236, 72, 153, 0.2); color: var(--accent-pink); border-color: var(--accent-pink); box-shadow: 0 0 8px var(--accent-glow); }
+        .btn-vs-user.hazem-success { background: rgba(16, 185, 129, 0.2); color: #10b981; border-color: #10b981; box-shadow: 0 0 8px rgba(16, 185, 129, 0.15); }
 
         .del-icon-btn { background: none; border: none; color: #ef4444; cursor: pointer; font-size: 14px; }
         .progress-summary-text { font-size: 12px; font-weight: bold; color: var(--text-muted); margin-top: 10px; display: flex; justify-content: space-between; }
         .theme-toggle-btn { background-color: var(--accent-pink); color: white; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-weight: bold; }
     </style>
+
+    <!-- تضمين الفايربيز المستقر المزامك -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
 <body>
     <header>
-        <h1>🏆 ساحة مراجعة معسكر العشرة الأوائل (لوكال انجن آمن 100%)</h1>
+        <h1>🏆 ساحة معسكر العشرة الأوائل (لوحة لايف حقيقية ⚡)</h1>
         <div style="display: flex; align-items: center; gap: 15px;">
-            <div class="engine-status"><span class="pulse-dot"></span> متصل ومحفوظ محلياً</div>
+            <div class="engine-status"><span class="pulse-dot"></span> متصل لايف بالشبكة</div>
             <button onclick="toggleTheme()" class="theme-toggle-btn" id="themeBtn">المود الفاتح ☀️</button>
         </div>
     </header>
 
     <main>
-        <!-- لوحة الإدخال الفورية -->
         <section class="direct-add-box">
             <h3 style="color: var(--text-main); margin: 0;">⚡ إضافة درس وتحدي جديد في الساحة حالاً:</h3>
             <div class="inputs-group">
@@ -133,30 +138,33 @@
     </main>
 
     <script>
-        // مصفوفة البيانات الأساسية
-        let databaseState = { tasks: [] };
+        // داتا الاتصال بسيرفر سحابي مخصص ومحمي لمنع التداخل والكتابة العشوائية
+        const firebaseConfig = {
+            databaseURL: "https://thanaweya-camp-default-rtdb.firebaseio.com/"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        // تم تغيير المسار لـ "realtime_battle" لضمان تنظيف الكاش القديم تماما وبدء صفحة جديدة نظيفة
+        const dbRef = firebase.database().ref("realtime_battle");
+
+        let localTasksArray = [];
 
         window.onload = function() {
             applySavedTheme();
-            loadData();
+            
+            // الاستماع الحقيقي والتحديث اللحظي للمتصفحين في نفس الوقت
+            dbRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                // تحويل الكائن القادم من الفايربيز إلى مصفوفة نظيفة للرندر
+                localTasksArray = [];
+                if (data) {
+                    for (let key in data) {
+                        localTasksArray.push({ id: key, ...data[key] });
+                    }
+                }
+                renderGridStructure();
+            });
         };
-
-        // جلب البيانات من ذاكرة المتصفح الحديدية
-        function loadData() {
-            const savedData = localStorage.getItem('thanaweya_camp_data');
-            if (savedData) {
-                databaseState = JSON.parse(savedData);
-            } else {
-                databaseState = { tasks: [] };
-            }
-            renderGridStructure();
-        }
-
-        // حفظ الداتا فوراً في الـ LocalStorage من غير الاعتماد على أي سيرفر خارجي
-        function saveData() {
-            localStorage.setItem('thanaweya_camp_data', JSON.stringify(databaseState));
-            renderGridStructure();
-        }
 
         function getCalculatedCurrentDay() {
             let campStartDate = localStorage.getItem('campTenDaysStartDate');
@@ -175,11 +183,10 @@
             if (!container) return;
             container.innerHTML = '';
 
-            const allTasks = databaseState.tasks || [];
             const currentActiveDayNum = getCalculatedCurrentDay();
 
             for (let dayNum = 1; dayNum <= 10; dayNum++) {
-                const dayTasks = allTasks.map((t, idx) => ({...t, originalIdx: idx})).filter(t => t.day === dayNum);
+                const dayTasks = localTasksArray.filter(t => t.day === dayNum);
                 
                 const total = dayTasks.length;
                 const tDone = dayTasks.filter(t => t.meDone).length;
@@ -206,11 +213,11 @@
                                 <div class="task-meta">
                                     <span class="task-subject">${task.subject}</span>
                                     <span class="task-text">${task.name}</span>
-                                    <button class="del-icon-btn" onclick="deleteLiveTask(${task.originalIdx})">🗑️</button>
+                                    <button class="del-icon-btn" onclick="deleteLiveTask('${task.id}')">🗑️</button>
                                 </div>
                                 <div class="battle-buttons-zone">
-                                    <button class="${tBtnClass}" onclick="toggleLiveTask(${task.originalIdx}, 'tarek')">${tBtnText}</button>
-                                    <button class="${hBtnClass}" onclick="toggleLiveTask(${task.originalIdx}, 'hazem')">${hBtnText}</button>
+                                    <button class="${tBtnClass}" onclick="toggleLiveTask('${task.id}', 'tarek', ${task.meDone})">${tBtnText}</button>
+                                    <button class="${hBtnClass}" onclick="toggleLiveTask('${task.id}', 'hazem', ${task.hazemDone})">${hBtnText}</button>
                                 </div>
                             </div>
                         `;
@@ -241,7 +248,8 @@
 
             if(!nameInput.value.trim()) { alert('فضلاً اكتب اسم الدرس أولاً!'); return; }
 
-            databaseState.tasks.push({
+            // دفع مادة جديدة للسيرفر مباشرة بمعرّف فريد ومستقل
+            dbRef.push({
                 day: parseInt(daySelect.value),
                 subject: subjectSelect.value,
                 name: nameInput.value.trim(),
@@ -249,23 +257,21 @@
                 hazemDone: false
             });
 
-            saveData();
             nameInput.value = '';
         }
 
-        function toggleLiveTask(originalIdx, user) {
-            const task = databaseState.tasks[originalIdx];
-            if(task) {
-                if(user === 'tarek') task.meDone = !task.meDone;
-                else task.hazemDone = !task.hazemDone;
-                saveData();
+        function toggleLiveTask(taskId, user, currentStatus) {
+            // تحديث ذكي ومستقل: يغير حالة الزرار فقط في السيرفر بدون مسح باقي الداتا!
+            if(user === 'tarek') {
+                dbRef.child(taskId).update({ meDone: !currentStatus });
+            } else {
+                dbRef.child(taskId).update({ hazemDone: !currentStatus });
             }
         }
 
-        function deleteLiveTask(originalIdx) {
-            if(confirm('هل تود مسح هذا الدرس نهائياً؟')) {
-                databaseState.tasks.splice(originalIdx, 1);
-                saveData();
+        function deleteLiveTask(taskId) {
+            if(confirm('هل تود مسح هذا الدرس نهائياً من السحاب؟')) {
+                dbRef.child(taskId).remove();
             }
         }
 
