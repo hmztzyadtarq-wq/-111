@@ -1,19 +1,60 @@
-<!-- استخدم الهيكل الموحد السابق وأضف المحتوى التالي داخل المين -->
-<div class="card">
-    <h2>المواجهة (VS)</h2>
-    <div class="vs-container">
-        <p>طارق: <progress value="70" max="100"></progress></p>
-        <p>حازم: <progress value="65" max="100"></progress></p>
-    </div>
-</div>
-<div class="card">
-    <h2>عداد المعسكر</h2>
-    <p style="font-size: 2em;">74 يوماً متبقية</p>
-</div>
-<div class="card">
-    <h2>ساعة الحائط</h2>
-    <div id="clock" style="font-family: monospace; font-size: 1.5em;">00:00:00</div>
-</div>
-<script>
-    setInterval(() => document.getElementById('clock').innerText = new Date().toLocaleTimeString(), 1000);
-</script>
+/* تنسيق الصفحة بالكامل لتكون بـ Grid (جانب و main) */
+body {
+    display: flex;
+    margin: 0;
+    min-height: 100vh;
+    font-family: sans-serif; /* تأكد من اختيار الخط المفضل لديك */
+}
+
+/* شريط التنقل الجانبي */
+header {
+    width: 250px;
+    background: #0f172a; /* نفس لون الخلفية الغامقة */
+    border-left: 1px solid var(--border-color);
+    padding: 20px;
+    flex-shrink: 0;
+}
+
+header h1 {
+    font-size: 18px;
+    color: white;
+    margin-bottom: 30px;
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+nav ul li a, .theme-toggle-btn {
+    display: block;
+    padding: 12px;
+    text-decoration: none;
+    color: #94a3b8;
+    border-radius: 8px;
+    transition: 0.3s;
+    width: 100%;
+    text-align: right;
+}
+
+nav ul li a:hover, nav ul li a.active {
+    background: rgba(236, 72, 153, 0.15);
+    color: var(--accent-pink);
+}
+
+/* المحتوى الأساسي */
+main {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+/* تعديل الـ Responsive للهاتف */
+@media (max-width: 768px) {
+    body { flex-direction: column; }
+    header { width: 100%; padding: 15px; }
+    nav ul { flex-direction: row; justify-content: center; overflow-x: auto; }
+}
