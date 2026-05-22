@@ -3,156 +3,185 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>معسكر العشرة الأوائل - البوابة الرئيسية</title>
+    <title>الرئيسية | منصة معسكر العشرة الأوائل</title>
+    <!-- استدعاء سيرفر Firebase المجاني للربط اللحظي بينك وبين حازم -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         :root {
-            --bg-main: #020617;
-            --card-bg: #0f172a;
-            --border-color: #1e293b;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --accent-pink: #ec4899;
+            --bg-main: #020617; --card-bg: #0f172a; --border-color: #1e293b;
+            --text-main: #f8fafc; --text-muted: #94a3b8; --accent-pink: #ec4899;
             --luxury-gradient: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
         }
-
         body {
-            background-color: var(--bg-main);
-            color: var(--text-main);
-            font-family: system-ui, -apple-system, sans-serif;
-            margin: 0; padding: 0;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            min-height: 100vh; overflow-x: hidden;
+            background-color: var(--bg-main); color: var(--text-main);
+            font-family: system-ui, -apple-system, sans-serif; margin: 0; display: flex;
         }
-
-        .container {
-            width: 100%; max-width: 500px; padding: 20px; box-sizing: border-box; text-align: center;
-        }
-
-        /* ستايل الساعة الرقمية المودرن */
-        .clock-card {
-            background: var(--card-bg); border: 1px solid var(--border-color);
-            padding: 20px; border-radius: 16px; margin-bottom: 25px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-        }
-        .clock-time { font-size: 38px; font-weight: 900; color: var(--accent-pink); letter-spacing: 1px; }
-        .clock-date { font-size: 14px; color: var(--text-muted); margin-top: 5px; }
-
-        /* بوابة الدخول الاحترافية */
-        .login-box {
-            background: var(--card-bg); border: 2px solid var(--border-color);
-            padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            position: relative;
-        }
-        .login-box::before {
-            content: ''; position: absolute; top: -2px; left: -2px; right: -2px; bottom: -2px;
-            background: var(--luxury-gradient); border-radius: 20px; z-index: -1; opacity: 0.3;
-        }
-        h2 { margin-top: 0; margin-bottom: 20px; font-size: 22px; color: var(--text-main); }
         
-        .input-field {
-            width: 100%; padding: 14px; margin-bottom: 15px; border-radius: 10px;
-            background: var(--bg-main); color: var(--text-main);
-            border: 1px solid var(--border-color); font-weight: bold; box-sizing: border-box;
-            text-align: center; font-size: 16px;
+        /* 🧭 شريط التنقل الجانبي الجديد المودرن */
+        .sidebar {
+            width: 260px; background: var(--card-bg); height: 100vh; position: fixed;
+            right: 0; top: 0; border-left: 1px solid var(--border-color); padding: 20px; box-sizing: border-box;
+            display: flex; flex-direction: column; justify-content: space-between; z-index: 100;
         }
-        .input-field:focus { border-color: var(--accent-pink); outline: none; }
+        .sidebar-brand { font-size: 18px; font-weight: bold; color: var(--accent-pink); text-align: center; margin-bottom: 30px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; }
+        .sidebar-menu { display: flex; flex-direction: column; gap: 10px; flex-grow: 1; }
+        .sidebar-link {
+            display: flex; align-items: center; gap: 12px; color: var(--text-main); text-decoration: none;
+            padding: 12px 15px; border-radius: 10px; font-weight: bold; transition: all 0.2s; font-size: 15px;
+        }
+        .sidebar-link:hover, .sidebar-link.active { background: rgba(236, 72, 153, 0.15); color: var(--accent-pink); }
+        .user-badge { background: var(--bg-main); padding: 12px; border-radius: 10px; text-align: center; border: 1px solid var(--border-color); font-weight: bold; }
+        .logout-btn { color: #ef4444; background: none; border: none; cursor: pointer; font-weight: bold; margin-top: 10px; width: 100%; text-align: center; }
 
-        .login-btn {
-            width: 100%; background: var(--luxury-gradient); color: white; border: none;
-            padding: 14px; border-radius: 10px; font-weight: bold; font-size: 16px;
-            cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .login-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(236, 72, 153, 0.4); }
+        /* 📋 محتوى الصفحة الرئيسي */
+        .main-content { margin-right: 260px; padding: 40px; width: 100%; box-sizing: border-box; }
+        .grid-dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; margin-top: 30px; }
+        .card { background: var(--card-bg); border: 1px solid var(--border-color); padding: 25px; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+        
+        /* 🕒 الساعة */
+        .clock-time { font-size: 36px; font-weight: 900; color: var(--accent-pink); text-align: center; }
+        .clock-date { text-align: center; color: var(--text-muted); font-size: 13px; margin-top: 5px; }
+        
+        /* 📊 ستايل المقارنة الحية المطور */
+        .vs-container { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; background: var(--bg-main); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); }
+        .vs-player { text-align: center; flex: 1; }
+        .vs-score { font-size: 24px; font-weight: bold; color: #10b981; }
+        .vs-badge-winner { background: var(--luxury-gradient); color: white; padding: 3px 8px; border-radius: 6px; font-size: 11px; display: inline-block; margin-top: 5px; font-weight: bold; }
 
-        /* صندوق بحث جوجل المدمج */
-        .google-box {
-            margin-top: 30px; background: var(--card-bg); border: 1px solid var(--border-color);
-            padding: 15px; border-radius: 16px; width: 100%; box-sizing: border-box;
-        }
-        .google-form { display: flex; gap: 10px; }
-        .google-input {
-            flex: 1; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color);
-            background: var(--bg-main); color: var(--text-main); font-size: 14px;
-        }
-        .google-btn {
-            background: #2563eb; color: white; border: none; padding: 0 20px;
-            border-radius: 8px; font-weight: bold; cursor: pointer;
-        }
+        /* 🔍 جوجل ميت والبحث */
+        .search-form { display: flex; gap: 10px; margin-top: 15px; }
+        .search-input { flex: 1; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-main); color: var(--text-main); }
+        .search-btn { background: #2563eb; color: white; border: none; padding: 0 20px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .meet-btn { display: block; text-align: center; background: #10b981; color: white; text-decoration: none; padding: 12px; border-radius: 10px; font-weight: bold; margin-top: 15px; }
+
+        /* 📢 الإعلانات والعد التنازلي */
+        .promo-banner { background: var(--luxury-gradient); color: white; padding: 20px; border-radius: 16px; font-weight: bold; text-align: center; box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3); }
+        .countdown-num { font-size: 42px; font-weight: 900; color: var(--accent-pink); text-align: center; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <!-- قسم الساعة الرقمية المحدثة في ثانية -->
-        <div class="clock-card">
-            <div class="clock-time" id="liveClock">00:00:00 م</div>
-            <div class="clock-date" id="liveDate">جاري تحميل التاريخ...</div>
+    <!-- 🧭 الشريط الجانبي الثابت -->
+    <nav class="sidebar">
+        <div>
+            <div class="sidebar-brand">🏆 معسكر الـ 10 أوائل</div>
+            <div class="sidebar-menu">
+                <a href="index.html" class="sidebar-link active">🏠 لوحة التحكم الرئيسية</a>
+                <a href="schedule.html" class="sidebar-link">📅 جدول التحديات اليومي</a>
+                <a href="materials.html" class="sidebar-link">📚 الكتب والمذكرات PDF</a>
+                <a href="summary.html" class="sidebar-link">📊 إحصائيات الإنجاز</a>
+                <a href="settings.html" class="sidebar-link">⚙️ إعدادات المنصة</a>
+            </div>
+        </div>
+        <div>
+            <div class="user-badge">👤 البطل: <span id="userLabel" style="color: #10b981;">..</span></div>
+            <button class="logout-btn" onclick="logout()">🚪 تسجيل خروج</button>
+        </div>
+    </nav>
+
+    <!-- 📋 المحتوى الرئيسي للمنصة -->
+    <main class="main-content">
+        <div class="promo-banner">
+            📢 تنويه المعسكر: تم فتح باب حجز كورس الحل الشامل النهائي لتقفيل امتحانات الثانوية العامة! 🎓🔥
         </div>
 
-        <!-- البوابة الاحترافية بالباسورد المخفي -->
-        <div class="login-box">
-            <h2>🏆 تسجيل دخول بطل المعسكر</h2>
-            <input type="text" id="phoneInput" class="input-field" placeholder="أدخل رقم الهاتف المسجل">
-            <input type="password" id="passInput" class="input-field" placeholder="أدخل كلمة المرور السرية">
-            <button class="login-btn" onclick="handleLogin()">تحقق وافتح الساحة فوراً 🚀</button>
-        </div>
+        <div class="grid-dashboard">
+            <!-- 🕒 كارت الساعة الرقمية المحدثة بالثانية -->
+            <div class="card">
+                <h3>🕒 التوقيت الحالي بالثانية</h3>
+                <div class="clock-time" id="clock">00:00:00 م</div>
+                <div class="clock-date" id="date">..</div>
+            </div>
 
-        <!-- صندوق بحث جوجل المطور ومحمي بروابطه الحقيقية -->
-        <div class="google-box">
-            <form action="https://www.google.com/search" method="get" target="_blank" class="google-form">
-                <input type="text" name="q" class="google-input" placeholder="ابحث في جوجل من داخل المعسكر..." required>
-                <button type="submit" class="google-btn">بحث</button>
-            </form>
+            <!-- ⏳ كارت العد التنازلي للثانوية العامة -->
+            <div class="card">
+                <h3>⏳ المتبقي على الملحمة الكبرى</h3>
+                <div class="countdown-num" id="countdown">74 يوم</div>
+                <p style="text-align: center; color: var(--text-muted); margin: 0; font-size: 13px;">الوقت لا ينتظر أحداً، شد حيلك يا بطل!</p>
+            </div>
+
+            <!-- 📊 كارت المقارنة الحية والمزامنة اللحظية مع حازم -->
+            <div class="card">
+                <h3>📊 ساحة صراع الجبابرة (مين أشسن؟)</h3>
+                <div class="vs-container">
+                    <div class="vs-player">
+                        <div style="font-weight: bold;">طارق 👑</div>
+                        <div class="vs-score" id="scoreTarek">0</div>
+                        <div id="badgeTarek"></div>
+                    </div>
+                    <div style="font-weight: 900; color: var(--accent-pink); font-size: 20px;">VS</div>
+                    <div class="vs-player">
+                        <div style="font-weight: bold;">د. حازم 🧠</div>
+                        <div class="vs-score" id="scoreHazem">0</div>
+                        <div id="badgeHazem"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 🔍 كارت سيرفرات جوجل ميت والبحث السريع -->
+            <div class="card">
+                <h3>🌐 أدوات المذاكرة السريعة</h3>
+                <form action="https://www.google.com/search" method="get" target="_blank" class="search-form">
+                    <input type="text" name="q" class="search-input" placeholder="ابحث في جوجل علطول..." required>
+                    <button type="submit" class="search-form search-btn">بحث</button>
+                </form>
+                <a href="https://meet.google.com" target="_blank" class="meet-btn">🔵 فتح سيرفر جوجل ميت (جلسة مشتركة)</a>
+            </div>
         </div>
-    </div>
+    </main>
 
     <script>
-        // التحديث التلقائي للساعة والتاريخ كل ثانية
-        function updateClock() {
+        // التحقق من الهوية أولاً
+        const activeUser = sessionStorage.getItem('active_camp_user');
+        if(!activeUser) { window.location.href = "login.html"; }
+        document.getElementById('userLabel').innerText = activeUser;
+
+        function logout() { sessionStorage.removeItem('active_camp_user'); window.location.href = "login.html"; }
+
+        // 🕒 تحديث الساعة الرقمية تلقائياً كل ثانية
+        function updateTime() {
             const now = new Date();
-            let hours = now.getHours();
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            const seconds = String(now.getSeconds()).padStart(2, '0');
-            const ampm = hours >= 12 ? 'م' : 'ص';
-            hours = hours % 12;
-            hours = hours ? hours : 12; 
-            
-            document.getElementById('liveClock').innerText = `${String(hours).padStart(2, '0')}:${minutes}:${seconds} ${ampm}`;
-            
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', calendar: 'islamic-umar' };
-            document.getElementById('liveDate').innerText = now.toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            let h = now.getHours(); const m = String(now.getMinutes()).padStart(2,'0'); const s = String(now.getSeconds()).padStart(2,'0');
+            const ampm = h >= 12 ? 'م' : 'ص'; h = h % 12; h = h ? h : 12;
+            document.getElementById('clock').innerText = `${String(h).padStart(2,'0')}:${m}:${s} ${ampm}`;
+            document.getElementById('date').innerText = now.toLocaleDateString('ar-EG', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
         }
-        setInterval(updateClock, 1000);
-        updateClock();
+        setInterval(updateTime, 1000); updateTime();
 
-        // قاعدة البيانات الصارمة المرفقة من قبلك
-        const USER_CREDENTIALS = {
-            "01140090339": { name: "طارق", pass: "1714827128" },
-            "01098078492": { name: "حازم", pass: "eesdca32" }
-        };
+        // ⏳ حساب العد التنازلي الفعلي لـ 74 يوم
+        let remainingDays = 74;
+        document.getElementById('countdown').innerText = `${remainingDays} يوم`;
 
-        function handleLogin() {
-            const phone = document.getElementById('phoneInput').value.trim();
-            const pass = document.getElementById('passInput').value;
+        // 🌐 ربط سيرفر Firebase المجاني لقراءة الإحصائيات فورا وتحديد الفائز تلقائيا
+        const firebaseConfig = { databaseURL: "https://camp-top10-default-rtdb.firebaseio.com/" };
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        const db = firebase.database();
 
-            if (USER_CREDENTIALS[phone]) {
-                if (pass === USER_CREDENTIALS[phone].pass) {
-                    // حفظ جلسة العمل في المتصفح لعدم طلبها مجدداً داخل الجدول
-                    sessionStorage.setItem('active_camp_user', USER_CREDENTIALS[phone].name);
-                    // الربط المباشر والصحيح بالصفحة التالية لعدم حدوث عطل
-                    window.location.href = "schedule.html";
-                } else {
-                    alert("❌ كلمة المرور المكتوبة غير صحيحة!");
-                }
+        // الاستماع الفوري لقاعدة البيانات لمعرفة مين مخلص دروس أكتر
+        db.ref('camp_tasks').on('value', (snapshot) => {
+            let tarekDone = 0; let hazemDone = 0;
+            snapshot.forEach((child) => {
+                const task = child.val();
+                if(task.meDone) tarekDone++;
+                if(task.hazemDone) hazemDone++;
+            });
+            
+            document.getElementById('scoreTarek').innerText = tarekDone;
+            document.getElementById('scoreHazem').innerText = hazemDone;
+
+            // تحديد مين البطل الحالي
+            if (tarekDone > hazemDone) {
+                document.getElementById('badgeTarek').innerHTML = '<span class="vs-badge-winner">طارق متصدر 🔥</span>';
+                document.getElementById('badgeHazem').innerHTML = '';
+            } else if (hazemDone > tarekDone) {
+                document.getElementById('badgeHazem').innerHTML = '<span class="vs-badge-winner">د. حازم متصدر 🧠</span>';
+                document.getElementById('badgeTarek').innerHTML = '';
             } else {
-                alert("❌ رقم الهاتف هذا غير مسجل في ساحة المعسكر!");
+                document.getElementById('badgeTarek').innerHTML = '<span class="vs-badge-winner">تعادل عادل 🤝</span>';
+                document.getElementById('badgeHazem').innerHTML = '<span class="vs-badge-winner">تعادل عادل 🤝</span>';
             }
-        }
-
-        // إذا كان مسجل دخول بالفعل، ينقله تلقائياً لصفحة الجدول
-        if(sessionStorage.getItem('active_camp_user')) {
-            window.location.href = "schedule.html";
-        }
+        });
     </script>
 </body>
 </html>
