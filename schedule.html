@@ -41,6 +41,17 @@
         .engine-status { font-size: 13px; color: #10b981; font-weight: bold; display: flex; align-items: center; gap: 6px; }
         .pulse-dot { width: 8px; height: 8px; background: #10b981; border-radius: 50%; }
 
+        /* ستايل لوحة هوية المستخدم */
+        .user-identity-badge {
+            background: linear-gradient(90deg, #1e293b, #0f172a);
+            padding: 8px 15px; border-radius: 8px; font-size: 13px; font-weight: bold;
+            border: 1px solid var(--border-color); color: var(--accent-pink);
+        }
+        .switch-user-btn {
+            background: none; border: none; color: var(--text-muted); 
+            text-decoration: underline; cursor: pointer; margin-right: 8px; font-size: 11px;
+        }
+
         .direct-add-box { 
             background: var(--card-bg); 
             border: 2px solid var(--accent-pink); 
@@ -84,6 +95,12 @@
         .btn-vs-user.tarek-success { background: rgba(236, 72, 153, 0.2); color: var(--accent-pink); border-color: var(--accent-pink); }
         .btn-vs-user.hazem-success { background: rgba(16, 185, 129, 0.2); color: #10b981; border-color: #10b981; }
 
+        /* ستايل الأزرار المقفولة للخصوصية */
+        .btn-vs-user:disabled {
+            opacity: 0.4;
+            cursor: not-allowed !important;
+        }
+
         .del-icon-btn { background: none; border: none; color: #ef4444; cursor: pointer; font-size: 14px; }
         .progress-summary-text { font-size: 12px; font-weight: bold; color: var(--text-muted); margin-top: 10px; display: flex; justify-content: space-between; }
         .theme-toggle-btn { background-color: var(--accent-pink); color: white; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-weight: bold; }
@@ -91,9 +108,13 @@
 </head>
 <body>
     <header>
-        <h1>🏆 ساحة مراجعة معسكر العشرة الأوائل (محرك محلي فوري ومستقر ⚡)</h1>
+        <h1>🏆 ساحة معسكر العشرة الأوائل (قفل الخصوصية الآمن 🔒)</h1>
         <div style="display: flex; align-items: center; gap: 15px;">
-            <div class="engine-status"><span class="pulse-dot"></span> الحفظ محلي وتلقائي 100%</div>
+            <div class="user-identity-badge">
+                👤 الحساب الحالي: <span id="currentUserLabel" style="color:#10b981;">جاري التحقق...</span>
+                <button class="switch-user-btn" onclick="forcePromptUser()">تبديل</button>
+            </div>
+            <div class="engine-status"><span class="pulse-dot"></span> الخصوصية مفعلة</div>
             <button onclick="toggleTheme()" class="theme-toggle-btn" id="themeBtn">المود الفاتح ☀️</button>
         </div>
     </header>
@@ -131,15 +152,35 @@
     </main>
 
     <script>
-        // مصفوفة البيانات المحلية النظيفة
         let localTasksArray = [];
+        let activeUser = ""; // سيتم حفظها محلياً إما "طارق" أو "حازم"
 
         window.onload = function() {
             applySavedTheme();
+            checkUserIdentity();
             loadData();
         };
 
-        // تحميل الداتا من المتصفح مباشرة بدون أي سيرفرات وسيطة تسبب مشاكل
+        // دالة تحديد هوية المستخدم وقفلها لمنع التلاعب
+        function checkUserIdentity() {
+            let savedUser = sessionStorage.getItem('active_camp_user');
+            if (!savedUser) {
+                savedUser = prompt("أهلاً بطل المعسكر! من فضلك اكتب اسمك بدقة لتفعيل الخصوصية (طارق أو حازم):");
+                if (savedUser !== "طارق" && savedUser !== "حازم") {
+                    savedUser = "طارق"; // افتراضي لحمايتك
+                }
+                sessionStorage.setItem('active_camp_user', savedUser);
+            }
+            activeUser = savedUser;
+            document.getElementById('currentUserLabel').innerText = activeUser;
+        }
+
+        function forcePromptUser() {
+            sessionStorage.removeItem('active_camp_user');
+            checkUserIdentity();
+            renderGridStructure();
+        }
+
         function loadData() {
             const saved = localStorage.getItem('local_camp_battle_tasks');
             if (saved) {
@@ -150,7 +191,6 @@
             renderGridStructure();
         }
 
-        // حفظ وتحديث الداتا فوراً
         function saveData() {
             localStorage.setItem('local_camp_battle_tasks', JSON.stringify(localTasksArray));
             renderGridStructure();
@@ -198,6 +238,10 @@
                         const hBtnClass = task.hazemDone ? "btn-vs-user hazem-success" : "btn-vs-user";
                         const hBtnText = task.hazemDone ? "حازم: ✅ تم" : "حازم: ⏳ شغال";
 
+                        // هنا تكمن قوة الخصوصية: تعطيل الزر إذا لم يكن المستخدم هو صاحب الزر
+                        const tarekDisabled = activeUser !== 'طارق' ? 'disabled' : '';
+                        const hazemDisabled = activeUser !== 'حازم' ? 'disabled' : '';
+
                         tasksHtml += `
                             <div class="task-item-battle">
                                 <div class="task-meta">
@@ -206,8 +250,8 @@
                                     <button class="del-icon-btn" onclick="deleteLiveTask('${task.id}')">🗑️</button>
                                 </div>
                                 <div class="battle-buttons-zone">
-                                    <button class="${tBtnClass}" onclick="toggleLiveTask('${task.id}', 'tarek', ${task.meDone})">${tBtnText}</button>
-                                    <button class="${hBtnClass}" onclick="toggleLiveTask('${task.id}', 'hazem', ${task.hazemDone})">${hBtnText}</button>
+                                    <button class="${tBtnClass}" ${tarekDisabled} onclick="toggleLiveTask('${task.id}', 'tarek', ${task.meDone})">${tBtnText}</button>
+                                    <button class="${hBtnClass}" ${hazemDisabled} onclick="toggleLiveTask('${task.id}', 'hazem', ${task.hazemDone})">${hBtnText}</button>
                                 </div>
                             </div>
                         `;
@@ -238,7 +282,6 @@
 
             if(!nameInput.value.trim()) { alert('فضلاً اكتب اسم الدرس أولاً!'); return; }
 
-            // إنشاء معرّف فريد محلياً لكل درس لضمان عدم التداخل
             const uniqueId = '_' + Math.random().toString(36).substr(2, 9);
 
             localTasksArray.push({
@@ -255,6 +298,10 @@
         }
 
         function toggleLiveTask(taskId, user, currentStatus) {
+            // تأكيد إضافي برمجي لحماية الـ Function من التلاعب
+            if(user === 'tarek' && activeUser !== 'طارق') return;
+            if(user === 'hazem' && activeUser !== 'حازم') return;
+
             const taskIndex = localTasksArray.findIndex(t => t.id === taskId);
             if (taskIndex !== -1) {
                 if(user === 'tarek') {
@@ -273,7 +320,6 @@
             }
         }
 
-        // تشغيل المود المتغير الفخم
         function toggleTheme() {
             if (document.documentElement.getAttribute('data-theme') === 'light') {
                 document.documentElement.removeAttribute('data-theme'); localStorage.setItem('theme', 'dark');
