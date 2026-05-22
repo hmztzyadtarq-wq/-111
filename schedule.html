@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -41,8 +39,7 @@
         h1 { margin: 0; font-size: 20px; }
 
         .engine-status { font-size: 13px; color: #10b981; font-weight: bold; display: flex; align-items: center; gap: 6px; }
-        .pulse-dot { width: 8px; height: 8px; background: #10b981; border-radius: 50%; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
+        .pulse-dot { width: 8px; height: 8px; background: #10b981; border-radius: 50%; }
 
         .direct-add-box { 
             background: var(--card-bg); 
@@ -84,23 +81,19 @@
         .battle-buttons-zone { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         .btn-vs-user { padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-muted); font-size: 12px; font-weight: bold; cursor: pointer; text-align: center; }
         
-        .btn-vs-user.tarek-success { background: rgba(236, 72, 153, 0.2); color: var(--accent-pink); border-color: var(--accent-pink); box-shadow: 0 0 8px var(--accent-glow); }
-        .btn-vs-user.hazem-success { background: rgba(16, 185, 129, 0.2); color: #10b981; border-color: #10b981; box-shadow: 0 0 8px rgba(16, 185, 129, 0.15); }
+        .btn-vs-user.tarek-success { background: rgba(236, 72, 153, 0.2); color: var(--accent-pink); border-color: var(--accent-pink); }
+        .btn-vs-user.hazem-success { background: rgba(16, 185, 129, 0.2); color: #10b981; border-color: #10b981; }
 
         .del-icon-btn { background: none; border: none; color: #ef4444; cursor: pointer; font-size: 14px; }
         .progress-summary-text { font-size: 12px; font-weight: bold; color: var(--text-muted); margin-top: 10px; display: flex; justify-content: space-between; }
         .theme-toggle-btn { background-color: var(--accent-pink); color: white; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-weight: bold; }
     </style>
-
-    <!-- تضمين الفايربيز المستقر المزامك -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
 <body>
     <header>
-        <h1>🏆 ساحة معسكر العشرة الأوائل (لوحة لايف حقيقية ⚡)</h1>
+        <h1>🏆 ساحة مراجعة معسكر العشرة الأوائل (محرك محلي فوري ومستقر ⚡)</h1>
         <div style="display: flex; align-items: center; gap: 15px;">
-            <div class="engine-status"><span class="pulse-dot"></span> متصل لايف بالشبكة</div>
+            <div class="engine-status"><span class="pulse-dot"></span> الحفظ محلي وتلقائي 100%</div>
             <button onclick="toggleTheme()" class="theme-toggle-btn" id="themeBtn">المود الفاتح ☀️</button>
         </div>
     </header>
@@ -138,33 +131,30 @@
     </main>
 
     <script>
-        // داتا الاتصال بسيرفر سحابي مخصص ومحمي لمنع التداخل والكتابة العشوائية
-        const firebaseConfig = {
-            databaseURL: "https://thanaweya-camp-default-rtdb.firebaseio.com/"
-        };
-        
-        firebase.initializeApp(firebaseConfig);
-        // تم تغيير المسار لـ "realtime_battle" لضمان تنظيف الكاش القديم تماما وبدء صفحة جديدة نظيفة
-        const dbRef = firebase.database().ref("realtime_battle");
-
+        // مصفوفة البيانات المحلية النظيفة
         let localTasksArray = [];
 
         window.onload = function() {
             applySavedTheme();
-            
-            // الاستماع الحقيقي والتحديث اللحظي للمتصفحين في نفس الوقت
-            dbRef.on('value', (snapshot) => {
-                const data = snapshot.val();
-                // تحويل الكائن القادم من الفايربيز إلى مصفوفة نظيفة للرندر
-                localTasksArray = [];
-                if (data) {
-                    for (let key in data) {
-                        localTasksArray.push({ id: key, ...data[key] });
-                    }
-                }
-                renderGridStructure();
-            });
+            loadData();
         };
+
+        // تحميل الداتا من المتصفح مباشرة بدون أي سيرفرات وسيطة تسبب مشاكل
+        function loadData() {
+            const saved = localStorage.getItem('local_camp_battle_tasks');
+            if (saved) {
+                localTasksArray = JSON.parse(saved);
+            } else {
+                localTasksArray = [];
+            }
+            renderGridStructure();
+        }
+
+        // حفظ وتحديث الداتا فوراً
+        function saveData() {
+            localStorage.setItem('local_camp_battle_tasks', JSON.stringify(localTasksArray));
+            renderGridStructure();
+        }
 
         function getCalculatedCurrentDay() {
             let campStartDate = localStorage.getItem('campTenDaysStartDate');
@@ -248,8 +238,11 @@
 
             if(!nameInput.value.trim()) { alert('فضلاً اكتب اسم الدرس أولاً!'); return; }
 
-            // دفع مادة جديدة للسيرفر مباشرة بمعرّف فريد ومستقل
-            dbRef.push({
+            // إنشاء معرّف فريد محلياً لكل درس لضمان عدم التداخل
+            const uniqueId = '_' + Math.random().toString(36).substr(2, 9);
+
+            localTasksArray.push({
+                id: uniqueId,
                 day: parseInt(daySelect.value),
                 subject: subjectSelect.value,
                 name: nameInput.value.trim(),
@@ -257,24 +250,30 @@
                 hazemDone: false
             });
 
+            saveData();
             nameInput.value = '';
         }
 
         function toggleLiveTask(taskId, user, currentStatus) {
-            // تحديث ذكي ومستقل: يغير حالة الزرار فقط في السيرفر بدون مسح باقي الداتا!
-            if(user === 'tarek') {
-                dbRef.child(taskId).update({ meDone: !currentStatus });
-            } else {
-                dbRef.child(taskId).update({ hazemDone: !currentStatus });
+            const taskIndex = localTasksArray.findIndex(t => t.id === taskId);
+            if (taskIndex !== -1) {
+                if(user === 'tarek') {
+                    localTasksArray[taskIndex].meDone = !currentStatus;
+                } else {
+                    localTasksArray[taskIndex].hazemDone = !currentStatus;
+                }
+                saveData();
             }
         }
 
         function deleteLiveTask(taskId) {
-            if(confirm('هل تود مسح هذا الدرس نهائياً من السحاب؟')) {
-                dbRef.child(taskId).remove();
+            if(confirm('هل تود مسح هذا الدرس نهائياً؟')) {
+                localTasksArray = localTasksArray.filter(t => t.id !== taskId);
+                saveData();
             }
         }
 
+        // تشغيل المود المتغير الفخم
         function toggleTheme() {
             if (document.documentElement.getAttribute('data-theme') === 'light') {
                 document.documentElement.removeAttribute('data-theme'); localStorage.setItem('theme', 'dark');
