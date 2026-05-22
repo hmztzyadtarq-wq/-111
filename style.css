@@ -1,36 +1,13 @@
 :root {
-    --bg-color: #020617;
-    --card-bg: #0f172a;
-    --text-main: #f8fafc;
-    --text-muted: #94a3b8;
-    --accent-pink: #ec4899;
-    --accent-glow: rgba(236, 72, 153, 0.3);
-    --border-color: #1e293b;
-    --luxury-gradient: linear-gradient(135deg, #ec4899, #8b5cf6);
+    --bg-color: #020617; --card-bg: #0f172a; --text-main: #f8fafc;
+    --text-muted: #94a3b8; --accent-pink: #ec4899; --accent-glow: rgba(236, 72, 153, 0.3);
+    --border-color: #1e293b; --luxury-gradient: linear-gradient(135deg, #ec4899, #8b5cf6);
 }
-
-[data-theme='light'] {
-    --bg-color: #f1f5f9;
-    --card-bg: #ffffff;
-    --text-main: #0f172a;
-    --text-muted: #475569;
-    --border-color: #cbd5e1;
-}
-
-body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; display: flex; transition: 0.3s; }
-
-/* الـ Sidebar الجانبي */
-.sidebar { width: 250px; height: 100vh; background: var(--card-bg); border-left: 1px solid var(--border-color); padding: 20px; position: fixed; right: 0; }
-.sidebar h2 { color: var(--accent-pink); font-size: 18px; margin-bottom: 30px; }
-.sidebar ul { list-style: none; padding: 0; }
-.sidebar ul li { margin-bottom: 15px; }
-.sidebar ul li a { color: var(--text-muted); text-decoration: none; font-weight: bold; display: block; padding: 10px; border-radius: 8px; transition: 0.3s; }
-.sidebar ul li a:hover, .sidebar ul li a.active { background: var(--accent-pink); color: white; }
-
-/* المحتوى الرئيسي */
-.main-content { margin-right: 250px; padding: 20px; width: calc(100% - 250px); }
-
-@media (max-width: 768px) {
-    .sidebar { width: 100%; height: auto; position: relative; border-left: none; border-bottom: 1px solid var(--border-color); }
-    .main-content { margin-right: 0; width: 100%; }
-}
+[data-theme='light'] { --bg-color: #f1f5f9; --card-bg: #ffffff; --text-main: #0f172a; --text-muted: #475569; --border-color: #cbd5e1; }
+body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; }
+header { padding: 20px; text-align: center; border-bottom: 1px solid var(--border-color); }
+nav ul { list-style: none; display: flex; justify-content: center; gap: 20px; padding: 0; }
+nav a { color: var(--text-muted); text-decoration: none; font-weight: bold; }
+nav a.active { color: var(--accent-pink); }
+.card { background: var(--card-bg); border: 1px solid var(--border-color); padding: 20px; border-radius: 12px; margin-top: 20px; }
+.theme-toggle-btn { background: var(--accent-pink); color: white; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; }
