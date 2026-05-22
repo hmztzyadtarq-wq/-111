@@ -1,27 +1,19 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <title>الرئيسية - منصة التحدي</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <header>
-        <h1>🚀 لوحة تحكم التحدي والمراجعة</h1>
-        <nav>
-            <ul>
-                <li><a href="index.html" class="active">الرئيسية</a></li>
-                <li><a href="pomodoro.html">غرفة البومودورو</a></li>
-                <li><a href="schedule.html">جدول المعسكر</a></li>
-                <li><a href="summary.html">الملخصات المهمة</a></li>
-                <li><a href="platforms.html">المنصات</a></li>
-                <li><button onclick="toggleTheme()" class="theme-toggle-btn" id="themeBtn">المود الفاتح ☀️</button></li>
-            </ul>
-        </nav>
-    </header>
-    <main style="padding: 20px; max-width: 1200px; margin: 0 auto;">
-        <!-- ضع محتوى الصفحة هنا -->
-    </main>
-    <script src="script.js"></script>
-</body>
-</html>
+<!-- استخدم الهيكل الموحد السابق وأضف المحتوى التالي داخل المين -->
+<div class="card">
+    <h2>المواجهة (VS)</h2>
+    <div class="vs-container">
+        <p>طارق: <progress value="70" max="100"></progress></p>
+        <p>حازم: <progress value="65" max="100"></progress></p>
+    </div>
+</div>
+<div class="card">
+    <h2>عداد المعسكر</h2>
+    <p style="font-size: 2em;">74 يوماً متبقية</p>
+</div>
+<div class="card">
+    <h2>ساعة الحائط</h2>
+    <div id="clock" style="font-family: monospace; font-size: 1.5em;">00:00:00</div>
+</div>
+<script>
+    setInterval(() => document.getElementById('clock').innerText = new Date().toLocaleTimeString(), 1000);
+</script>
