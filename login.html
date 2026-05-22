@@ -2,78 +2,20 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بوابة تسجيل الدخول | معسكر العشرة الأوائل</title>
-    <style>
-        :root {
-            --bg-main: #020617;
-            --card-bg: #0f172a;
-            --border-color: #1e293b;
-            --text-main: #f8fafc;
-            --accent-pink: #ec4899;
-            --luxury-gradient: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
-        }
-        body {
-            background-color: var(--bg-main); color: var(--text-main);
-            font-family: system-ui, -apple-system, sans-serif;
-            margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh;
-        }
-        .login-card {
-            background: var(--card-bg); border: 2px solid var(--border-color);
-            padding: 40px; border-radius: 24px; width: 100%; max-width: 420px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center;
-        }
-        h2 { margin-top: 0; color: var(--text-main); font-size: 24px; margin-bottom: 25px; }
-        .input-group { margin-bottom: 20px; text-align: right; }
-        label { display: block; margin-bottom: 8px; font-size: 14px; color: var(--accent-pink); font-weight: bold; }
-        .input-field {
-            width: 100%; padding: 14px; border-radius: 10px; background: var(--bg-main);
-            color: var(--text-main); border: 1px solid var(--border-color); font-size: 16px;
-            box-sizing: border-box; text-align: center;
-        }
-        .input-field:focus { border-color: var(--accent-pink); outline: none; }
-        .login-btn {
-            width: 100%; background: var(--luxury-gradient); color: white; border: none;
-            padding: 14px; border-radius: 10px; font-weight: bold; font-size: 16px;
-            cursor: pointer; transition: all 0.2s; margin-top: 10px;
-        }
-        .login-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(236, 72, 153, 0.4); }
-    </style>
+    <title>تسجيل الدخول</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-<body>
-
-    <div class="login-card">
-        <h2>🏆 معسكر العشرة الأوائل</h2>
-        <div class="input-group">
-            <label>رقم الهاتف</label>
-            <input type="text" id="phoneInput" class="input-field" placeholder="01xxxxxxxxx">
-        </div>
-        <div class="input-group">
-            <label>كلمة المرور السرية</label>
-            <input type="password" id="passInput" class="input-field" placeholder="••••••••">
-        </div>
-        <button class="login-btn" onclick="validateLogin()">تسجيل الدخول الآمن 🚀</button>
+<body style="display: flex; justify-content: center; align-items: center; height: 100vh;">
+    <div class="card" style="width: 300px; text-align: center;">
+        <h2>مرحباً بك يا طارق</h2>
+        <input type="password" id="pass" placeholder="أدخل كلمة المرور" style="width: 100%; padding: 10px; margin: 10px 0;">
+        <button onclick="checkPass()" class="theme-toggle-btn">دخول</button>
     </div>
-
     <script>
-        const CREDENTIALS = {
-            "01140090339": { name: "طارق", pass: "1714827128" },
-            "01098078492": { name: "حازم", pass: "eesdca32" }
-        };
-
-        function validateLogin() {
-            const phone = document.getElementById('phoneInput').value.trim();
-            const pass = document.getElementById('passInput').value;
-
-            if (CREDENTIALS[phone] && CREDENTIALS[phone].pass === pass) {
-                sessionStorage.setItem('active_camp_user', CREDENTIALS[phone].name);
-                window.location.href = "index.html";
-            } else {
-                alert("❌ عذراً! رقم الهاتف أو كلمة المرور غير صحيحة.");
-            }
-        }
-        if(sessionStorage.getItem('active_camp_user')) {
-            window.location.href = "index.html";
+        function checkPass() {
+            if(document.getElementById('pass').value === '111') {
+                window.location.href = 'index.html';
+            } else { alert('كلمة مرور خاطئة!'); }
         }
     </script>
 </body>
