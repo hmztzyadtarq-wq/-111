@@ -2,366 +2,156 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>منصة التحدي والمذاكرة المشتركة</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>معسكر العشرة الأوائل - البوابة الرئيسية</title>
     <style>
-        body { overflow-x: hidden; -webkit-text-size-adjust: 100%; }
+        :root {
+            --bg-main: #020617;
+            --card-bg: #0f172a;
+            --border-color: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-pink: #ec4899;
+            --luxury-gradient: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0; padding: 0;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            min-height: 100vh; overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%; max-width: 500px; padding: 20px; box-sizing: border-box; text-align: center;
+        }
+
+        /* ستايل الساعة الرقمية المودرن */
+        .clock-card {
+            background: var(--card-bg); border: 1px solid var(--border-color);
+            padding: 20px; border-radius: 16px; margin-bottom: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        }
+        .clock-time { font-size: 38px; font-weight: 900; color: var(--accent-pink); letter-spacing: 1px; }
+        .clock-date { font-size: 14px; color: var(--text-muted); margin-top: 5px; }
+
+        /* بوابة الدخول الاحترافية */
+        .login-box {
+            background: var(--card-bg); border: 2px solid var(--border-color);
+            padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            position: relative;
+        }
+        .login-box::before {
+            content: ''; position: absolute; top: -2px; left: -2px; right: -2px; bottom: -2px;
+            background: var(--luxury-gradient); border-radius: 20px; z-index: -1; opacity: 0.3;
+        }
+        h2 { margin-top: 0; margin-bottom: 20px; font-size: 22px; color: var(--text-main); }
         
-        /* تصميم كروت المعسكرات الجديدة (الحالي والقادم) */
-        .camps-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; margin-top: 25px; }
-        .camp-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 25px; position: relative; overflow: hidden; transition: all 0.3s ease; }
-        .camp-card.active-camp { border-color: var(--accent-pink); box-shadow: 0 8px 30px var(--accent-glow); }
-        .camp-card.upcoming-camp { border-style: dashed; border-color: #64748b; opacity: 0.85; }
-        .camp-card h3 { font-size: 22px; margin-bottom: 12px; }
-        .active-camp h3 { color: var(--accent-pink); }
-        .upcoming-camp h3 { color: #f59e0b; }
-        
-        .badge { display: inline-block; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: bold; margin-bottom: 15px; }
-        .badge-active { background: rgba(236, 72, 153, 0.15); color: var(--accent-pink); border: 1px solid var(--accent-pink); }
-        .badge-upcoming { background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid #f59e0b; }
+        .input-field {
+            width: 100%; padding: 14px; margin-bottom: 15px; border-radius: 10px;
+            background: var(--bg-main); color: var(--text-main);
+            border: 1px solid var(--border-color); font-weight: bold; box-sizing: border-box;
+            text-align: center; font-size: 16px;
+        }
+        .input-field:focus { border-color: var(--accent-pink); outline: none; }
 
-        .camp-desc { font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-bottom: 20px; }
-        .enter-camp-btn { background: var(--luxury-gradient); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; display: inline-block; text-decoration: none; text-align: center; width: 100%; transition: transform 0.2s; }
-        .enter-camp-btn:hover { transform: translateY(-2px); }
+        .login-btn {
+            width: 100%; background: var(--luxury-gradient); color: white; border: none;
+            padding: 14px; border-radius: 10px; font-weight: bold; font-size: 16px;
+            cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .login-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(236, 72, 153, 0.4); }
 
-        /* ساحة المواجهة والنشاط اللحظي */
-        .versus-container { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 20px; margin-top: 20px; padding: 20px; background: #0b0f19; border-radius: 16px; border: 1px solid var(--border-color); }
-        .user-side { text-align: center; padding: 15px; border-radius: 12px; position: relative; }
-        .me-side { background: rgba(236, 72, 153, 0.05); border: 1px solid rgba(236, 72, 153, 0.2); }
-        .hazem-side { background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.2); }
-        
-        .status-dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-left: 8px; transition: all 0.3s ease; }
-        .online-dot { background-color: #10b981; box-shadow: 0 0 12px #10b981; }
-        .offline-dot { background-color: #64748b; box-shadow: none; }
-        .status-text { font-size: 13px; font-weight: bold; display: flex; align-items: center; justify-content: center; margin-top: 8px; }
-
-        .vs-circle { background: var(--accent-pink); color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; box-shadow: 0 0 15px var(--accent-glow); margin: 0 auto; }
-        .score-number { font-size: 36px; font-weight: bold; margin: 10px 0; font-family: 'Courier New', Courier, monospace; }
-        .progress-bar-bg { background: #1e293b; height: 10px; border-radius: 5px; overflow: hidden; margin-top: 10px; }
-        .progress-bar-fill { height: 100%; width: 0%; transition: width 0.5s ease; }
-
-        .meet-box { background: var(--luxury-gradient); border-radius: 12px; padding: 20px; color: white; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-top: 20px; box-shadow: 0 4px 15px var(--accent-glow); }
-        .meet-btn { background-color: #020617; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: bold; transition: transform 0.2s; text-align: center; }
-        #meetUrlInput { flex: 1; min-width: 200px; padding: 10px; border-radius: 8px; background: rgba(255,255,255,0.2); color: #fff; border: 1px solid rgba(255,255,255,0.4); }
-
-        .dashboard-widgets { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 15px; margin-bottom: 20px; }
-        .widget-box { background: var(--card-bg); border: 1px solid var(--border-color); padding: 15px; border-radius: 12px; text-align: center; display: flex; flex-direction: column; justify-content: center; }
-        .widget-val { font-size: 24px; font-weight: bold; color: var(--accent-pink); margin-top: 5px; font-family: 'Courier New', Courier, monospace; }
-        .theme-toggle-btn { background-color: var(--accent-pink); color: white; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-weight: bold; }
-
-        .welcome-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 6, 23, 0.98); display: flex; align-items: center; justify-content: center; z-index: 99999; padding: 20px; }
-        .welcome-card { background: #0f172a; border: 2px solid var(--accent-pink); border-radius: 20px; padding: 35px 25px; text-align: center; max-width: 450px; width: 100%; box-shadow: 0 0 30px var(--accent-glow); }
-        .welcome-btn { background: var(--luxury-gradient); color: white; border: none; padding: 12px 30px; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; }
-
-        @media (max-width: 768px) {
-            header h1 { font-size: 20px; text-align: center; }
-            nav ul { flex-direction: column; gap: 8px; align-items: center; }
-            .versus-container { grid-template-columns: 1fr; gap: 15px; }
-            .meet-box { flex-direction: column; text-align: center; }
+        /* صندوق بحث جوجل المدمج */
+        .google-box {
+            margin-top: 30px; background: var(--card-bg); border: 1px solid var(--border-color);
+            padding: 15px; border-radius: 16px; width: 100%; box-sizing: border-box;
+        }
+        .google-form { display: flex; gap: 10px; }
+        .google-input {
+            flex: 1; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color);
+            background: var(--bg-main); color: var(--text-main); font-size: 14px;
+        }
+        .google-btn {
+            background: #2563eb; color: white; border: none; padding: 0 20px;
+            border-radius: 8px; font-weight: bold; cursor: pointer;
         }
     </style>
 </head>
 <body>
 
-    <!-- شاشة الحماية والدخول -->
-    <div id="welcomePopup" class="welcome-overlay" style="display: none;">
-        <div class="welcome-card">
-            <h2>✨ لوحة تحكم التحدي والمراجعة ✨</h2>
-            <h3 id="welcomeUserText">مرحبا بك 👋</h3>
-            <div style="font-size: 14px; color: #94a3b8; margin-bottom: 25px; font-weight: bold;">🔒 Secured by Tarek Wael</div>
-            <button class="welcome-btn" onclick="closeWelcomePopup()">دخول لوحة التحكم ➔</button>
+    <div class="container">
+        <!-- قسم الساعة الرقمية المحدثة في ثانية -->
+        <div class="clock-card">
+            <div class="clock-time" id="liveClock">00:00:00 م</div>
+            <div class="clock-date" id="liveDate">جاري تحميل التاريخ...</div>
+        </div>
+
+        <!-- البوابة الاحترافية بالباسورد المخفي -->
+        <div class="login-box">
+            <h2>🏆 تسجيل دخول بطل المعسكر</h2>
+            <input type="text" id="phoneInput" class="input-field" placeholder="أدخل رقم الهاتف المسجل">
+            <input type="password" id="passInput" class="input-field" placeholder="أدخل كلمة المرور السرية">
+            <button class="login-btn" onclick="handleLogin()">تحقق وافتح الساحة فوراً 🚀</button>
+        </div>
+
+        <!-- صندوق بحث جوجل المطور ومحمي بروابطه الحقيقية -->
+        <div class="google-box">
+            <form action="https://www.google.com/search" method="get" target="_blank" class="google-form">
+                <input type="text" name="q" class="google-input" placeholder="ابحث في جوجل من داخل المعسكر..." required>
+                <button type="submit" class="google-btn">بحث</button>
+            </form>
         </div>
     </div>
 
-    <header>
-        <h1>🚀 لوحة تحكم التحدي والمراجعة</h1>
-        <nav>
-            <ul>
-                <li><a href="index.html" class="active">الرئيسية</a></li>
-                <li><a href="pomodoro.html">غرفة البومودورو</a></li>
-                <li><a href="schedule.html">جدول المعسكر</a></li>
-                <li><a href="summary.html">الملخصات المهمة</a></li>
-                <li><button onclick="toggleTheme()" class="theme-toggle-btn" id="themeBtn">المود الفاتح ☀️</button></li>
-            </ul>
-        </nav>
-    </header>
-    
-    <main style="padding: 15px; max-width: 1200px; margin: 0 auto;">
-        
-        <!-- الوجت العلوية الذكية للمتابعة الزمنية الفلكية -->
-        <div class="dashboard-widgets">
-            <div class="widget-box">
-                <div style="font-size: 13px; color: var(--text-muted);">⏰ الساعة الآن</div>
-                <div class="widget-val" id="digitalClock">00:00:00 م</div>
-            </div>
-            <div class="widget-box" style="border-color: var(--accent-pink);">
-                <div style="font-size: 13px; color: var(--text-main); font-weight: bold;">🔥 حالة المعسكر الحالي</div>
-                <div class="widget-val" id="campDaysWidget" style="color: var(--accent-pink);">اليوم 2 من 10</div>
-                <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;" id="campRemainingText">يقلب تلقائياً لليوم التالي عند الساعة 12:00 م</div>
-            </div>
-            <div class="widget-box">
-                <div style="font-size: 13px; color: var(--text-muted);">⏳ المتبقي على نهاية الخطة العامة (90 يوم)</div>
-                <div class="widget-val" id="countdownWidget">جاري الحساب...</div>
-            </div>
-        </div>
-
-        <!-- بيان المعسكرات الحالي والمستقبلي المكتوب محتواه بعناية وحماس -->
-        <section class="card" style="margin-top: 20px;">
-            <h2>📁 خارطة طريق المعسكرات والكورسات</h2>
-            <div class="camps-container">
-                
-                <!-- الكورس النشط الحالي -->
-                <div class="camp-card active-camp">
-                    <div class="badge badge-active">🔥 الكورس الحالي الشغال الآن</div>
-                    <h3>🏆 معسكر العشرة الأوائل</h3>
-                    <p class="camp-desc">
-                        <strong>الهدف الأساسي:</strong> لم التراكمات القديمة وتصفير كل المواد بالكامل! <br>
-                        <strong>المدة المتاحة:</strong> 10 أيام قاطعة.. لازم تخلص وتلتزم بالجدول اليومي عشان تفتح الكورس اللي بعده وتدخل قاعة الامتحانات جاهز ومقفل المواد.
-                    </p>
-                    <a href="schedule.html" class="enter-camp-btn">دخول جدول الأيام والمتابعة الحية ➔</a>
-                </div>
-
-                <!-- إعلان الكورس القادم -->
-                <div class="camp-card upcoming-camp">
-                    <div class="badge badge-upcoming">📢 إعلان كورس جديد قادم</div>
-                    <h3>⚡ كورس ليالي الامتحان الشامل</h3>
-                    <p class="camp-desc">
-                        <strong>موعد الانطلاق:</strong> <span style="color: #f59e0b; font-weight: bold;">يوم 10 / 6 / 2026</span> <br>
-                        <strong>تفاصيل الكورس:</strong> المراجعات النهائية الكبرى وحل شوامل الوزارة والامتحانات التجريبية. لن يتم تفعيل الكورس إلا بعد انتهاء معسكر التراكمات الحالي بنجاح! شدوا الحيل!
-                    </p>
-                    <div style="text-align: center; color: #64748b; font-weight: bold; font-size: 13px; border-top: 1px dashed #334155; padding-top: 10px;">🔒 مغلق مؤقتاً حتى نهاية المعسكر الحالي</div>
-                </div>
-
-            </div>
-        </section>
-
-        <!-- ساحة المواجهة والـ Live Connection ومراقبة حازم -->
-        <section class="card" style="margin-top: 25px;">
-            <h2>📊 ساحة المواجهة ومؤشرات النشاط اللحظي بين الطرفين</h2>
-            <div class="versus-container">
-                <div class="user-side me-side">
-                    <h3 style="color: var(--accent-pink);">البشمهندس طارق 👨‍💻</h3>
-                    <div class="status-text">
-                        <span class="status-dot offline-dot" id="tarekDot"></span>
-                        <span id="tarekStatusText">جاري الفحص...</span>
-                    </div>
-                    <div class="score-number" id="meTotalScore" style="color: var(--accent-pink);">0</div>
-                    <p style="font-size: 12px; color: var(--text-muted);" id="mePercentageText">تم إنجاز 0%</p>
-                    <div class="progress-bar-bg"><div class="progress-bar-fill" id="meBar" style="background: var(--accent-pink);"></div></div>
-                </div>
-
-                <div class="vs-circle">VS</div>
-
-                <div class="user-side hazem-side">
-                    <h3 style="color: #10b981;">الدكتور حازم 👨‍⚕️</h3>
-                    <div class="status-text">
-                        <span class="status-dot offline-dot" id="hazemDot"></span>
-                        <span id="hazemStatusText">جاري الفحص...</span>
-                    </div>
-                    <div class="score-number" id="hazemTotalScore" style="color: #10b981;">0</div>
-                    <p style="font-size: 12px; color: var(--text-muted);" id="hazemPercentageText">تم إنجاز 0%</p>
-                    <div class="progress-bar-bg"><div class="progress-bar-fill" id="hazemBar" style="background: #10b981;"></div></div>
-                </div>
-            </div>
-            <div id="leaderMessage" style="text-align: center; margin-top: 15px; font-weight: bold; font-size: 15px; color: var(--text-main);">
-                جاري جلب البيانات... 🌐
-            </div>
-        </section>
-
-        <!-- قاعة المذاكرة والاتصال المباشر بالفيديو والشاشة -->
-        <section class="card" style="margin-top: 20px;">
-            <h2>🎥 قاعة المذاكرة والاتصال المباشر</h2>
-            <div class="meet-box">
-                <div>
-                    <h3 style="margin-bottom: 5px; color: white; font-size: 18px;">💻 انضم الآن لغرفة المذاكرة المفتوحة</h3>
-                    <p style="font-size: 13px; opacity: 0.9; color: white;">افتح الكاميرا أو الشاشة وابدأ التركيز والحل المشترك فوراً.</p>
-                </div>
-                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; width: 100%;">
-                    <input type="text" id="meetUrlInput" placeholder="ضع رابط Google Meet هنا...">
-                    <a href="#" id="meetLinkBtn" target="_blank" class="meet-btn">دخول الاجتماع الآن ➔</a>
-                </div>
-            </div>
-        </section>
-
-    </main>
-
     <script>
-        const SERVER_URL = "https://api.npoint.io/cb849be5c488737fc708"; 
-        let databaseState = { camps: [], meetUrl: "https://meet.google.com/", status: { tarek: 0, hazem: 0 } };
-        let currentUserRole = ""; 
-
-        function checkPasswordProtection() {
-            let isVerified = sessionStorage.getItem('isVerifiedUser');
-            currentUserRole = sessionStorage.getItem('userRole') || "";
-
-            if (!isVerified) {
-                let userPass = prompt("🔐 إدخال كلمة المرور للدخول (طارق: 111 / حازم: 222):");
-                while (userPass !== "111" && userPass !== "222") { userPass = prompt("❌ كلمة المرور خاطئة! حاول مجدداً:"); }
-                sessionStorage.setItem('isVerifiedUser', 'true');
-                if (userPass === "111") {
-                    currentUserRole = "tarek";
-                    document.getElementById('welcomeUserText').innerText = "مرحبا بك يا بشمهندس طارق 👋👨‍💻";
-                } else {
-                    currentUserRole = "hazem";
-                    document.getElementById('welcomeUserText').innerText = "مرحبا بك يا دكتور حازم 👋⚕️";
-                }
-                sessionStorage.setItem('userRole', currentUserRole);
-                document.getElementById('welcomePopup').style.display = 'flex';
-            }
+        // التحديث التلقائي للساعة والتاريخ كل ثانية
+        function updateClock() {
+            const now = new Date();
+            let hours = now.getHours();
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            const ampm = hours >= 12 ? 'م' : 'ص';
+            hours = hours % 12;
+            hours = hours ? hours : 12; 
+            
+            document.getElementById('liveClock').innerText = `${String(hours).padStart(2, '0')}:${minutes}:${seconds} ${ampm}`;
+            
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', calendar: 'islamic-umar' };
+            document.getElementById('liveDate').innerText = now.toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
         }
-        closeWelcomePopup = () => document.getElementById('welcomePopup').style.display = 'none';
-        checkPasswordProtection();
+        setInterval(updateClock, 1000);
+        updateClock();
 
-        window.onload = function() {
-            applySavedTheme();
-            loadDataFromServer();
-            startLiveClock();
-            updateExamCountdown();
-            setupCampTenDaysTracker();
-            setInterval(loadDataFromServer, 3000);
+        // قاعدة البيانات الصارمة المرفقة من قبلك
+        const USER_CREDENTIALS = {
+            "01140090339": { name: "طارق", pass: "1714827128" },
+            "01098078492": { name: "حازم", pass: "eesdca32" }
         };
 
-        function loadDataFromServer() {
-            if(currentUserRole) databaseState.status[currentUserRole] = Date.now();
+        function handleLogin() {
+            const phone = document.getElementById('phoneInput').value.trim();
+            const pass = document.getElementById('passInput').value;
 
-            fetch(SERVER_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(databaseState)
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data) {
-                    databaseState = data;
-                    calculateVsStatistics();
-                    updateUsersOnlineDisplay();
-                    
-                    const input = document.getElementById('meetUrlInput');
-                    const btn = document.getElementById('meetLinkBtn');
-                    if(document.activeElement !== input) {
-                        input.value = databaseState.meetUrl || "https://meet.google.com/";
-                        btn.href = databaseState.meetUrl || "https://meet.google.com/";
-                    }
+            if (USER_CREDENTIALS[phone]) {
+                if (pass === USER_CREDENTIALS[phone].pass) {
+                    // حفظ جلسة العمل في المتصفح لعدم طلبها مجدداً داخل الجدول
+                    sessionStorage.setItem('active_camp_user', USER_CREDENTIALS[phone].name);
+                    // الربط المباشر والصحيح بالصفحة التالية لعدم حدوث عطل
+                    window.location.href = "schedule.html";
+                } else {
+                    alert("❌ كلمة المرور المكتوبة غير صحيحة!");
                 }
-            });
-        }
-
-        function updateUsersOnlineDisplay() {
-            const now = Date.now();
-            const timeout = 12000;
-
-            const tDot = document.getElementById('tarekDot'); const tText = document.getElementById('tarekStatusText');
-            if(databaseState.status && (now - databaseState.status.tarek < timeout)) {
-                tDot.className = "status-dot online-dot"; tText.innerText = "نشط الآن"; tText.style.color = "#10b981";
             } else {
-                tDot.className = "status-dot offline-dot"; tText.innerText = "غير متصل"; tText.style.color = "#64748b";
-            }
-
-            const hDot = document.getElementById('hazemDot'); const hText = document.getElementById('hazemStatusText');
-            if(databaseState.status && (now - databaseState.status.hazem < timeout)) {
-                hDot.className = "status-dot online-dot"; hText.innerText = "نشط الآن"; hText.style.color = "#10b981";
-            } else {
-                hDot.className = "status-dot offline-dot"; hText.innerText = "غير متصل"; hText.style.color = "#64748b";
+                alert("❌ رقم الهاتف هذا غير مسجل في ساحة المعسكر!");
             }
         }
 
-        document.getElementById('meetUrlInput').addEventListener('input', function() {
-            databaseState.meetUrl = this.value;
-            document.getElementById('meetLinkBtn').href = this.value;
-            fetch(SERVER_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(databaseState) });
-        });
-
-        function calculateVsStatistics() {
-            let totalTasksCount = 0; let meDoneCount = 0; let hazemDoneCount = 0;
-            if(databaseState.camps) {
-                databaseState.camps.forEach(camp => {
-                    if (camp.tasks) {
-                        camp.tasks.forEach(task => {
-                            totalTasksCount++;
-                            if (task.meDone) meDoneCount++;
-                            if (task.hazemDone) hazemDoneCount++;
-                        });
-                    }
-                });
-            }
-
-            document.getElementById('meTotalScore').innerText = meDoneCount;
-            document.getElementById('hazemTotalScore').innerText = hazemDoneCount;
-
-            let mePercent = totalTasksCount > 0 ? Math.round((meDoneCount / totalTasksCount) * 100) : 0;
-            let hazemPercent = totalTasksCount > 0 ? Math.round((hazemDoneCount / totalTasksCount) * 100) : 0;
-
-            document.getElementById('mePercentageText').innerText = `تم إنجاز ${mePercent}%`;
-            document.getElementById('meBar').style.width = `${mePercent}%`;
-            document.getElementById('hazemPercentageText').innerText = `تم إنجاز ${hazemPercent}%`;
-            document.getElementById('hazemBar').style.width = `${hazemPercent}%`;
-
-            const msgElement = document.getElementById('leaderMessage');
-            if (totalTasksCount === 0) {
-                msgElement.innerText = "اكتبوا دروس اليوم داخل الجدول وابدأوا التحدي والحل المشترك فوراً! 🔥";
-            } else if (meDoneCount > hazemDoneCount) {
-                msgElement.innerHTML = `🥇 الصدارة الحالية <span style="color: var(--accent-pink);">للبشمهندس طارق</span> بفارق ${meDoneCount - hazemDoneCount} مهمة! كمل يا وحش! 🔥💪`;
-            } else if (hazemDoneCount > meDoneCount) {
-                msgElement.innerHTML = `🥇 الصدارة الحالية <span style="color: #10b981;">للدكتور حازم</span> بفارق ${hazemDoneCount - meDoneCount} مهمة! شد حيلك يا طارق وعوض! ⚡📚`;
-            } else {
-                msgElement.innerText = "تعادل مثالي وقوي جداً في المذاكرة الحالية! 🤝 استمروا بنفس الطاقة الكبيرة! 🔥";
-            }
-        }
-
-        function startLiveClock() {
-            setInterval(() => {
-                const now = new Date(); let hours = now.getHours();
-                const minutes = String(now.getMinutes()).padStart(2, '0');
-                const seconds = String(now.getSeconds()).padStart(2, '0');
-                const ampm = hours >= 12 ? 'م' : 'ص';
-                hours = hours % 12; hours = hours ? hours : 12;
-                document.getElementById('digitalClock').innerText = `${hours}:${minutes}:${seconds} ${ampm}`;
-                
-                // لو فتحتوا الموقع والساعة بقت 12 بالليل تماماً، السيستم يحدث الوجت فوراً لليوم التالي
-                if(now.getHours() === 0 && now.getMinutes() === 0 && now.getSeconds() === 0) {
-                    setupCampTenDaysTracker();
-                }
-            }, 1000);
-        }
-
-        function updateExamCountdown() {
-            let initialDate = new Date(localStorage.getItem('countdownStartDate'));
-            if (!initialDate || isNaN(initialDate.getTime())) {
-                initialDate = new Date(); localStorage.setItem('countdownStartDate', initialDate.toISOString());
-            }
-            const totalDays = 90; const elapsedDays = Math.floor((new Date() - initialDate) / (24*60*60*1000));
-            let remainingDays = totalDays - elapsedDays;
-            if (remainingDays < 0) remainingDays = 0;
-            document.getElementById('countdownWidget').innerText = `${remainingDays} يوم`;
-        }
-
-        function setupCampTenDaysTracker() {
-            let campStartDate = localStorage.getItem('campTenDaysStartDate');
-            if (!campStartDate) {
-                // ضبط البداية الافتراضية
-                const date = new Date(); date.setDate(date.getDate() - 1);
-                localStorage.setItem('campTenDaysStartDate', date.toISOString());
-                campStartDate = date.toISOString();
-            }
-            let currentDay = Math.floor((new Date() - new Date(campStartDate)) / (24*60*60*1000)) + 1;
-            if (currentDay < 1) currentDay = 2; if (currentDay > 10) currentDay = 10;
-            document.getElementById('campDaysWidget').innerText = `اليوم ${currentDay} من 10`;
-        }
-
-        function toggleTheme() {
-            if (document.documentElement.getAttribute('data-theme') === 'light') {
-                document.documentElement.removeAttribute('data-theme'); localStorage.setItem('theme', 'dark');
-                document.getElementById('themeBtn').innerText = "المود الفاتح ☀️";
-            } else {
-                document.documentElement.setAttribute('data-theme', 'light'); localStorage.setItem('theme', 'light');
-                document.getElementById('themeBtn').innerText = "المود الغامق 🌙";
-            }
-        }
-        function applySavedTheme() {
-            if (localStorage.getItem('theme') === 'light') {
-                document.documentElement.setAttribute('data-theme', 'light'); document.getElementById('themeBtn').innerText = "المود الغامق 🌙";
-            }
+        // إذا كان مسجل دخول بالفعل، ينقله تلقائياً لصفحة الجدول
+        if(sessionStorage.getItem('active_camp_user')) {
+            window.location.href = "schedule.html";
         }
     </script>
 </body>
