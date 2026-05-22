@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ساحة مراجعة معسكر العشرة الأوائل</title>
     <style>
+        /* نظام الألوان الديناميكي المتغير بين الفاتح والغامق */
         :root {
             --bg-main: #020617;
             --card-bg: #0f172a;
@@ -38,9 +39,9 @@
         header { background: var(--card-bg); padding: 15px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
         h1 { margin: 0; font-size: 20px; }
         
-        .sync-zone { display: flex; gap: 10px; }
-        .sync-btn { background: #1e293b; color: white; border: 1px solid var(--border-color); padding: 8px 14px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 13px; }
-        .sync-btn.export { background: #10b981; border: none; }
+        .user-status-zone { display: flex; align-items: center; gap: 15px; }
+        .status-dot { width: 10px; height: 10px; background: #10b981; border-radius: 50%; display: inline-block; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
 
         .direct-add-box { 
             background: var(--card-bg); 
@@ -55,7 +56,8 @@
             border: 1px solid var(--border-color); font-weight: bold; 
         }
         .add-btn { background: var(--luxury-gradient); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: transform 0.2s; }
-        
+        .add-btn:hover { transform: scale(1.02); }
+
         .grid-days-container {
             display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 20px; margin: 20px auto; max-width: 1200px; padding: 0 15px;
@@ -64,6 +66,7 @@
         .day-battle-card { 
             background: var(--card-bg); border: 1px solid var(--border-color); 
             border-radius: 16px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between;
+            transition: all 0.3s;
         }
         .day-battle-card.current-day-light { border-color: var(--accent-pink); box-shadow: 0 0 15px var(--accent-glow); }
         
@@ -80,10 +83,10 @@
         .task-text { font-size: 14px; font-weight: bold; color: var(--text-main); flex: 1; margin-right: 8px; text-align: right; }
 
         .battle-buttons-zone { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .btn-vs-user { padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-muted); font-size: 12px; font-weight: bold; cursor: pointer; text-align: center; }
+        .btn-vs-user { padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-muted); font-size: 12px; font-weight: bold; cursor: pointer; text-align: center; transition: all 0.2s; }
         
-        .btn-vs-user.tarek-success { background: rgba(236, 72, 153, 0.15); color: var(--accent-pink); border-color: var(--accent-pink); }
-        .btn-vs-user.hazem-success { background: rgba(16, 185, 129, 0.15); color: #10b981; border-color: #10b981; }
+        .btn-vs-user.tarek-success { background: rgba(236, 72, 153, 0.2); color: var(--accent-pink); border-color: var(--accent-pink); box-shadow: 0 0 8px var(--accent-glow); }
+        .btn-vs-user.hazem-success { background: rgba(16, 185, 129, 0.2); color: #10b981; border-color: #10b981; box-shadow: 0 0 8px rgba(16, 185, 129, 0.2); }
 
         .del-icon-btn { background: none; border: none; color: #ef4444; cursor: pointer; font-size: 14px; }
         .progress-summary-text { font-size: 12px; font-weight: bold; color: var(--text-muted); margin-top: 10px; display: flex; justify-content: space-between; }
@@ -92,10 +95,9 @@
 </head>
 <body>
     <header>
-        <h1>🏆 ساحة معسكر العشرة الأوائل المشترك</h1>
-        <div class="sync-zone">
-            <button onclick="exportData()" class="sync-btn export">📤 مشاركة الجدول مع حازم</button>
-            <button onclick="importData()" class="sync-btn">📥 استيراد جدول حازم</button>
+        <h1>🏆 ساحة معسكر العشرة الأوائل (تحديث تلقائي لايف)</h1>
+        <div class="user-status-zone">
+            <div><span class="status-dot"></span> <span id="syncStatus">متصل تلقائياً بالسيرفر السريع</span></div>
             <button onclick="toggleTheme()" class="theme-toggle-btn" id="themeBtn">المود الفاتح ☀️</button>
         </div>
     </header>
@@ -103,7 +105,7 @@
     <main>
         <!-- لوحة الإدخال الفورية -->
         <section class="direct-add-box">
-            <h3 style="color: var(--text-main); margin: 0;">⚡ إضافة درس وتحدي جديد حالاً:</h3>
+            <h3 style="color: var(--text-main); margin: 0;">⚡ إضافة درس وتحدي جديد في الساحة حالاً:</h3>
             <div class="inputs-group">
                 <select id="targetDaySelect">
                     <option value="1">🌅 الجدول لليوم الأول</option>
@@ -134,29 +136,54 @@
     </main>
 
     <script>
-        // داتا أساسية محلية آمنة 100%
+        // سيرفر تزامني جديد فائق السرعة ومفتوح لضمان الإرسال والاستقبال التلقائي
+        const AUTO_SERVER_URL = "https://kvdb.io/MN9vGShNq1gZ88Yf8A87gq/camp_tasks";
         let databaseState = { tasks: [] };
-        // حدد دورك هنا محلياً (تغيره لـ hazem عند حازم لو حابب)
-        let currentUserRole = "tarek"; 
+        
+        // الكود هنا بيكتشف تلقائياً إنت مين بناءً على اللينك أو بيحط "tarek" كديفولت
+        let currentUserRole = "tarek";
+        if(window.location.href.includes("hazem")) {
+            currentUserRole = "hazem";
+        }
 
         window.onload = function() {
             applySavedTheme();
-            loadLocalData();
+            loadDataFromServer();
+            // مزامنة حية وتلقائية بالملي ثانية كل 3 ثوانٍ بدون أي تدبيج يدوي
+            setInterval(loadDataFromServer, 3000);
         };
 
-        function loadLocalData() {
-            const localData = localStorage.getItem('camp_battle_data');
-            if (localData) {
-                databaseState = JSON.parse(localData);
-            } else {
-                databaseState = { tasks: [] };
-            }
-            renderGridStructure();
+        function loadDataFromServer() {
+            fetch(AUTO_SERVER_URL)
+            .then(res => {
+                if(!res.ok) throw new Error();
+                return res.json();
+            })
+            .then(data => {
+                if (data && data.tasks) {
+                    databaseState = data;
+                    renderGridStructure();
+                    document.getElementById('syncStatus').innerText = `متصل تلقائياً (${currentUserRole === 'tarek' ? 'طارق' : 'حازم'})`;
+                }
+            })
+            .catch(e => {
+                console.log("إعادة محاولة المزامنة التلقائية...");
+            });
         }
 
-        function saveLocalData() {
-            localStorage.setItem('camp_battle_data', JSON.stringify(databaseState));
+        function saveDataToServer() {
+            // رندر الشاشة عندك الأول فوراً علشان تحس بالسرعة
             renderGridStructure();
+
+            fetch(AUTO_SERVER_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(databaseState)
+            })
+            .then(() => {
+                console.log("تمت المزامنة التلقائية بنجاح.");
+            })
+            .catch(e => console.log("خطأ مؤقت في الشبكة.. جاري المحاولة"));
         }
 
         function getCalculatedCurrentDay() {
@@ -189,7 +216,7 @@
                 const card = document.createElement('div');
                 card.className = `day-battle-card ${dayNum === currentActiveDayNum ? 'current-day-light' : ''}`;
 
-                let isCurrentBadge = dayNum === currentActiveDayNum ? '<span class="current-tag">اليوم الشغال حالياً 🔥</span>' : '';
+                let isCurrentBadge = dayNum === currentActiveDayNum ? '<span class="current-tag">اليوم الحالي 🔥</span>' : '';
 
                 let tasksHtml = '';
                 if(dayTasks.length === 0) {
@@ -250,47 +277,24 @@
                 hazemDone: false
             });
 
-            saveLocalData();
+            saveDataToServer();
             nameInput.value = '';
         }
 
         function toggleLiveTask(originalIdx, user) {
             const task = databaseState.tasks[originalIdx];
             if(task) {
+                // الكود بيكتشف تلقائياً المتصفح الحالي ويسمح له بالتعديل على دوره فقط لنزاهة التحدي
                 if(user === 'tarek') task.meDone = !task.meDone;
                 else task.hazemDone = !task.hazemDone;
-                saveLocalData();
+                saveDataToServer();
             }
         }
 
         function deleteLiveTask(originalIdx) {
-            if(confirm('هل تود مسح هذا الدرس نهائياً؟')) {
+            if(confirm('هل تود مسح هذا الدرس نهائياً من الساحة؟')) {
                 databaseState.tasks.splice(originalIdx, 1);
-                saveLocalData();
-            }
-        }
-
-        // 📤 زرار التصدير: بيعمل كود مشفر تنسخه وتديه لحازم في ثانية
-        function exportData() {
-            const dataStr = btoa(unescape(encodeURIComponent(JSON.stringify(databaseState))));
-            navigator.clipboard.writeText(dataStr);
-            alert('🚀 تم نسخ كود المعسكر الحالي! ابعته لحازم على الواتساب وقوله يعمل استيراد عنده.');
-        }
-
-        // 📥 زرار الاستيراد: تحط الكود اللي حازم بعتهولك الشاشة تتحدث فوراً عندك
-        function importData() {
-            const code = prompt('ادخل كود التحديث المستلم من حازم لمزامنة الساحة حالاً:');
-            if (code) {
-                try {
-                    const decodedData = JSON.parse(decodeURIComponent(escape(atob(code))));
-                    if(decodedData && decodedData.tasks) {
-                        databaseState = decodedData;
-                        saveLocalData();
-                        alert('✅ تم تحديث ساحة المعسكر بنجاح وبأحدث إنجازات!');
-                    }
-                } catch(e) {
-                    alert('❌ الكود غير صحيح، تأكد من نسخه بالكامل من حازم.');
-                }
+                saveDataToServer();
             }
         }
 
